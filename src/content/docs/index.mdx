@@ -1,0 +1,117 @@
+---
+title: RPM Documentation
+description: Unofficial comprehensive guide to RPM packaging, macros, and spec files
+template: splash
+hero:
+  tagline: Comprehensive documentation for RPM macros and package creation
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Get Started
+      link: /guides/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: Browse Macros
+      link: /reference/macros/
+      icon: open-book
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import Callout from '../../components/Callout.astro';
+
+<Callout type="warning" title="Unofficial Documentation">
+  This is an **unofficial** documentation for RPM.
+</Callout>
+
+## What is RPM?
+
+RPM (Red Hat Package Manager) is a powerful packaging system used by Red Hat, Fedora, and other Linux distributions. This documentation provides comprehensive coverage of:
+
+<CardGrid stagger>
+	<Card title="RPM Macros" icon="open-book" href="/reference/macros/">
+		Detailed documentation for hundreds of RPM macros including %define, %global, %autosetup, and more.
+	</Card>
+	<Card title="Macro Syntax" icon="puzzle" href="/reference/macro-syntax/">
+		Learn how macros work, how to define them, parameterized macros, and conditional expansion.
+	</Card>
+	<Card title="RPM Expressions" icon="calculate" href="/reference/expressions/">
+		Understand RPM's expression language for version comparisons and logical operations.
+	</Card>
+	<Card title="Sections & Steps" icon="list-format" href="/reference/sections/">
+		Complete reference for spec file sections from preamble to %files.
+	</Card>
+</CardGrid>
+
+## Getting Started
+
+<CardGrid>
+	<Card title="Installation Guide" icon="rocket" href="/guides/getting-started/">
+		Set up your build environment and learn the basics of RPM packaging.
+	</Card>
+	<Card title="Create Your First Package" icon="pencil" href="/guides/creating-packages/">
+		Step-by-step guide to creating your first RPM package from scratch.
+	</Card>
+</CardGrid>
+
+## Macro Reference
+
+<CardGrid>
+	<Card title="All Macros" icon="star" href="/reference/macros/">
+		Complete reference of all documented RPM macros.
+	</Card>
+	<Card title="Path Macros" icon="folder" href="/reference/macros/#paths">
+		Directory paths like `%{_bindir}`, `%{_datadir}`, `%{_libdir}`, and more.
+	</Card>
+	<Card title="Build System Macros" icon="tools" href="/reference/macros/#c-and-c">
+		Macros for CMake, Meson, Autotools, Make, and other build systems.
+	</Card>
+	<Card title="Preamble Macros" icon="document" href="/reference/macros/#in-preamble">
+		Macros for conditional builds, debug packages, and dependency management.
+	</Card>
+	<Card title="String Operations" icon="text" href="/reference/macros/#string-operations">
+		Macros for string manipulation: `%{lower}`, `%{upper}`, `%{sub}`, `%gsub`, and more.
+	</Card>
+	<Card title="File Operations" icon="file" href="/reference/macros/#file-and-path-operations">
+		Macros for file handling: `%{basename}`, `%{dirname}`, `%{exists}`, and more.
+	</Card>
+</CardGrid>
+
+## Technical Reference
+
+<CardGrid>
+	<Card title="Macro Syntax" icon="puzzle" href="/reference/macro-syntax/">
+		Deep dive into macro definition, parameters, and conditional expansion.
+	</Card>
+	<Card title="RPM Expressions" icon="calculate" href="/reference/expressions/">
+		Master version comparisons and logical operations with %[…] expressions.
+	</Card>
+	<Card title="Sections & Steps" icon="list-format" href="/reference/sections/">
+		Complete reference for all spec file sections: %prep, %build, %install, %files, and more.
+	</Card>
+</CardGrid>
+
+## Quick Reference
+
+| Macro | Description |
+|-------|-------------|
+| `%define` | Define a local macro |
+| `%global` | Define a global macro |
+| `%autosetup` | Uncompress and setup sources |
+| `%configure` | Run configure script |
+| `%make_build` | Build with make |
+| `%make_install` | Install with make |
+| `%cmake` | Run CMake |
+| `%meson` | Run Meson |
+| `%find_lang` | Generate language file lists |
+| `%bcond_with` | Disable conditional build |
+| `%bcond_without` | Enable conditional build |
+
+<Callout type="info">
+  Hover over any macro in the documentation to see its description and expansion!
+</Callout>
+
+## About This Documentation
+
+This project aims to provide the most comprehensive and up-to-date RPM documentation on the internet. Whether you're a beginner learning to create your first RPM package or an experienced maintainer looking for macro reference information, this documentation has you covered.
+
+All content is open source and contributions are welcome!

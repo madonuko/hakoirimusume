@@ -1,0 +1,320 @@
+/* RPM Syntax Highlighting Theme for Starlight */
+
+/* rpmspec code blocks */
+.rpmspec {
+  --shiki-color-text: #cdd6f4;
+  --shiki-color-background: #1e1e2e;
+  --shiki-token-constant: #fab387;
+  --shiki-token-string: #a6e3a1;
+  --shiki-token-comment: #6c7086;
+  --shiki-token-keyword: #cba6f7;
+  --shiki-token-parameter: #f9e2af;
+  --shiki-token-function: #89b4fa;
+  --shiki-token-string-expression: #94e2d5;
+  --shiki-token-punctuation: #9399b2;
+  --shiki-token-link: #f38ba8;
+}
+
+/* Inline macro highlighting */
+.rpm-macro {
+  color: #cba6f7;
+  font-weight: 600;
+  background: rgba(168, 85, 247, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+}
+
+.rpm-macro:hover {
+  background: rgba(168, 85, 247, 0.2);
+}
+
+/* Code blocks in documentation */
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* Shiki theme overrides for rpmspec language */
+.expressive-code .frame[data-lang="rpmspec"] {
+  --ec-brdCol: #45475a;
+  --ec-bcgCol: #1e1e2e;
+}
+
+.expressive-code .frame[data-lang="rpmspec"] .code {
+  --ec-lnCol: #6c7086;
+  --ec-lnHovCol: #89b4fa;
+  --ec-lnNumCol: #45475a;
+  --ec-lnNumHovCol: #585b70;
+  --ec-codeCol: #cdd6f4;
+  --ec-commCol: #6c7086;
+  --ec-commBg: transparent;
+  --ec-keywCol: #cba6f7;
+  --ec-funcCol: #89b4fa;
+  --ec-strCol: #a6e3a1;
+  --ec-strBg: transparent;
+  --ec-numbCol: #fab387;
+  --ec-opCol: #9399b2;
+  --ec-selCol: #45475a;
+  --ec-selBg: rgba(137, 180, 250, 0.1);
+  --ec-copyCol: #6c7086;
+  --ec-copyHoverCol: #89b4fa;
+}
+
+/* Macro hover component styles */
+.macro-hover-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.macro-hover-wrapper .macro-trigger {
+  color: #a855f7;
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+}
+
+.macro-hover-wrapper .macro-trigger:hover {
+  background-color: rgba(168, 85, 247, 0.15);
+}
+
+.macro-hover-wrapper .macro-code {
+  padding: 0;
+  background: transparent;
+}
+
+.macro-hover-wrapper .macro-popup {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1e1e2e;
+  border: 1px solid #45475a;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 1000;
+  text-align: left;
+}
+
+.macro-hover-wrapper .macro-popup[aria-hidden="false"],
+.macro-hover-wrapper:hover .macro-popup,
+.macro-hover-wrapper:focus-within .macro-popup {
+  opacity: 1;
+  visibility: visible;
+}
+
+.macro-popup-header {
+  display: block;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #45475a;
+}
+
+.macro-popup-title {
+  color: #cba6f7;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.macro-popup-description {
+  display: block;
+  color: #cdd6f4;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.macro-popup-expansion {
+  display: block;
+  background-color: #181825;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.macro-popup-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #6c7086;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.macro-expansion-code {
+  display: block;
+  color: #a6e3a1;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  word-break: break-all;
+}
+
+.macro-popup-link {
+  display: block;
+  margin-top: 0.5rem;
+  color: #89b4fa;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.macro-popup-link:hover {
+  text-decoration: underline;
+}
+
+.macro-popup-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.macro-tag {
+  font-size: 0.7rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  background: #313244;
+  color: #a6adc8;
+}
+
+@media (max-width: 768px) {
+  .macro-hover-wrapper .macro-popup {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    right: 1rem;
+    transform: none;
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+/* Callout component styles */
+.callout {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  border-left: 4px solid;
+}
+
+.callout-info {
+  background-color: rgba(137, 180, 250, 0.1);
+  border-color: #89b4fa;
+}
+
+.callout-warning {
+  background-color: rgba(249, 226, 175, 0.1);
+  border-color: #f9e2af;
+}
+
+.callout-error {
+  background-color: rgba(243, 139, 168, 0.1);
+  border-color: #f38ba8;
+}
+
+.callout-default {
+  background-color: rgba(166, 173, 200, 0.1);
+  border-color: #a6adc8;
+}
+
+.callout-icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.callout-title {
+  font-weight: 600;
+  color: var(--sl-color-text);
+}
+
+.callout-content {
+  flex: 1;
+  color: var(--sl-color-text);
+  line-height: 1.6;
+}
+
+.callout-content p {
+  margin: 0;
+}
+
+.callout-content p + p {
+  margin-top: 0.5rem;
+}
+
+/* Split component styles */
+.split {
+  display: grid;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.split-horizontal {
+  grid-template-columns: 1fr 1fr;
+}
+
+.split-vertical {
+  grid-template-rows: auto auto;
+}
+
+.split-left,
+.split-right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .split-horizontal {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Table of contents enhancements */
+.toc-heading {
+  font-weight: 600;
+  color: var(--sl-color-text);
+}
+
+.toc-link {
+  color: var(--sl-color-text-light);
+  transition: color 0.2s ease;
+}
+
+.toc-link:hover {
+  color: var(--sl-color-accent);
+}
+
+/* Search highlight for macro search */
+.search-highlight {
+  background-color: rgba(168, 85, 247, 0.3);
+  border-radius: 0.2em;
+}
+
+/* Sidebar macro category styling */
+.nav-groups .group-content {
+  padding: 0.25rem 0;
+}
+
+.nav-groups .group-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--sl-color-gray-3);
+  padding: 0.5rem 1rem 0.25rem;
+}
+
+/* Print styles */
+@media print {
+  .macro-popup {
+    display: none !important;
+  }
+}

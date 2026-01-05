@@ -1,0 +1,21 @@
+{
+  "name": "rpm-docs",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "RPM Documentation - Unofficial guide to RPM packaging",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.37.1",
+    "astro": "^5.6.1",
+    "sharp": "^0.34.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

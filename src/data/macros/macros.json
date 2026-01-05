@@ -1,0 +1,1558 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2024-01-05",
+  "description": "Comprehensive database of RPM macros with documentation, expansions, and examples",
+  "macros": {
+    "define": {
+      "name": "define",
+      "fullName": "%define",
+      "category": "macro-manipulation",
+      "tags": ["🔰"],
+      "description": "Defines a macro locally.",
+      "details": "Macros defined with %define will not last to another RPM section. For example, if used in preamble section, the macro will be automatically undefined in %prep. To make sure a macro lasts for the entire spec file, use %global instead.",
+      "expansion": "value",
+      "examples": [
+        {
+          "code": "%define my_macro Hello, World!\necho %my_macro",
+          "expansion": "echo Hello, World!"
+        }
+      ]
+    },
+    "global": {
+      "name": "global",
+      "fullName": "%global",
+      "category": "macro-manipulation",
+      "tags": ["🔰"],
+      "description": "Defines a macro globally.",
+      "details": "As oppose to %define, macros defined with %global will last for the entire spec file.",
+      "expansion": "value",
+      "examples": [
+        {
+          "code": "%global cat Meow!!!\n\n%prep\necho nya %cat\n\n%build\necho %cat",
+          "expansion": "%prep\necho nya Meow!!!\n\n%build\necho Meow!!!"
+        }
+      ]
+    },
+    "undefine": {
+      "name": "undefine",
+      "fullName": "%undefine",
+      "category": "macro-manipulation",
+      "tags": ["🔦"],
+      "description": "Undefine a macro.",
+      "details": "Technically this does not always undefine the macro specified. Instead, this pops the latest definition from the macro stack.",
+      "expansion": "removes macro",
+      "examples": []
+    },
+    "dnl": {
+      "name": "dnl",
+      "fullName": "%dnl",
+      "category": "macro-manipulation",
+      "tags": ["🔰"],
+      "description": "Comments.",
+      "details": "Similar to # …, this can comment out anything in %{dnl:…} or after %dnl …. The difference with # … is that %dnl prevents macro expansions, while macros in # … are actually expanded.",
+      "expansion": "nothing",
+      "examples": []
+    },
+    "load": {
+      "name": "load",
+      "fullName": "%{load:…}",
+      "category": "macro-manipulation",
+      "tags": ["🔦", "🚸"],
+      "description": "Load a macro file.",
+      "details": "Loads an external macro file for use in the spec file.",
+      "expansion": "loaded macros",
+      "examples": []
+    },
+    "expr": {
+      "name": "expr",
+      "fullName": "%{expr:…}",
+      "category": "macro-manipulation",
+      "tags": ["🔦"],
+      "description": "Expand all macros in the body, then evaluate the body as an expression.",
+      "details": "Different from %[…], this first expands macros then evaluates the expression.",
+      "expansion": "evaluated result",
+      "examples": []
+    },
+    "expand": {
+      "name": "expand",
+      "fullName": "%{expand:…}",
+      "category": "macro-manipulation",
+      "tags": ["🛠️"],
+      "description": "Double-expand the macro.",
+      "details": "Expands the content, then expands the result again.",
+      "expansion": "double-expanded",
+      "examples": []
+    },
+    "lua": {
+      "name": "lua",
+      "fullName": "%{lua:…}",
+      "category": "macro-manipulation",
+      "tags": ["🛠️"],
+      "description": "Embed lua code.",
+      "details": "Since RPM expands macros when the source RPM (SRPM) is created, the lua code is executed during that stage. Documentations for the embedded Lua interpreter are available at https://rpm-software-management.github.io/rpm/manual/lua.html.",
+      "expansion": "lua output",
+      "examples": []
+    },
+    "macrobody": {
+      "name": "macrobody",
+      "fullName": "%{macrobody:…}",
+      "category": "macro-manipulation",
+      "tags": ["🔩"],
+      "description": "Expand to the definition of the given macro.",
+      "details": "Useful for debugging and understanding macro definitions.",
+      "expansion": "macro definition",
+      "examples": []
+    },
+    "quote": {
+      "name": "quote",
+      "fullName": "%{quote:…}",
+      "category": "macro-manipulation",
+      "tags": ["🔦", "🛠️"],
+      "description": "Does nothing, but useful for preserving spaces in arguments.",
+      "details": "Can be used to pass arguments with spaces to parameterized macros.",
+      "expansion": "same as input",
+      "examples": []
+    },
+    "gsub": {
+      "name": "gsub",
+      "fullName": "%gsub …",
+      "category": "string-operations",
+      "tags": ["🔢", "🔦", "🛠️"],
+      "description": "String substitution using Lua pattern matching.",
+      "details": "Equivalent to %{lua: string.gsub(\"%1\", \"%2\", %3, %?4)}, where %n represents the n-th argument to %gsub. %4 is optional and defaults to infinity. %2 is treated as a Lua pattern.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "input", "description": "Input string"},
+        {"name": "pattern", "description": "Lua pattern to match"},
+        {"name": "replacement", "description": "Replacement string"},
+        {"name": "count", "description": "Number of replacements (optional)"}
+      ],
+      "expansion": "modified string",
+      "examples": []
+    },
+    "len": {
+      "name": "len",
+      "fullName": "%{len:…}",
+      "category": "string-operations",
+      "tags": [],
+      "description": "Obtains the length of the given text.",
+      "expansion": "length as number",
+      "examples": []
+    },
+    "lower": {
+      "name": "lower",
+      "fullName": "%{lower:…}",
+      "category": "string-operations",
+      "tags": [],
+      "description": "Turn the input into ASCII-lowercase.",
+      "expansion": "lowercase string",
+      "examples": []
+    },
+    "upper": {
+      "name": "upper",
+      "fullName": "%{upper:…}",
+      "category": "string-operations",
+      "tags": [],
+      "description": "ASCII-uppercase.",
+      "expansion": "uppercase string",
+      "examples": []
+    },
+    "rep": {
+      "name": "rep",
+      "fullName": "%rep …",
+      "category": "string-operations",
+      "tags": ["🔢", "🔦"],
+      "description": "Repeat the first input n-times.",
+      "details": "Uses Lua string.rep() internally.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "string", "description": "String to repeat"},
+        {"name": "count", "description": "Number of times to repeat"}
+      ],
+      "expansion": "repeated string",
+      "examples": []
+    },
+    "reverse": {
+      "name": "reverse",
+      "fullName": "%{reverse:…}",
+      "category": "string-operations",
+      "tags": [],
+      "description": "Reverse a string.",
+      "expansion": "reversed string",
+      "examples": []
+    },
+    "sub": {
+      "name": "sub",
+      "fullName": "%sub …",
+      "category": "string-operations",
+      "tags": ["🔢", "🔰"],
+      "description": "Expand to substring.",
+      "details": "Uses Lua string.sub() internally.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "string", "description": "Input string"},
+        {"name": "start", "description": "Start position (1-based)"},
+        {"name": "end", "description": "End position (optional)"}
+      ],
+      "expansion": "substring",
+      "examples": []
+    },
+    "shescape": {
+      "name": "shescape",
+      "fullName": "%{shescape:…}",
+      "category": "string-operations",
+      "tags": [],
+      "description": "Escape a string for safe shell usage.",
+      "details": "Wrap the input with single quotes and also escape preexisting single-quotes correctly.",
+      "expansion": "shell-escaped string",
+      "examples": []
+    },
+    "shrink": {
+      "name": "shrink",
+      "fullName": "%{shrink:…}",
+      "category": "string-operations",
+      "tags": [],
+      "description": "Trim whitespace.",
+      "details": "Trim leading and trailing ASCII-whitespace, and reduce intermediate whitespace to a single space.",
+      "expansion": "trimmed string",
+      "examples": []
+    },
+    "basename": {
+      "name": "basename",
+      "fullName": "%{basename:…}",
+      "category": "file-and-path-operations",
+      "tags": ["🔦"],
+      "description": "Get the basename of a path.",
+      "details": "Equivalent to basename(1).",
+      "expansion": "filename only",
+      "examples": []
+    },
+    "dirname": {
+      "name": "dirname",
+      "fullName": "%{dirname:…}",
+      "category": "file-and-path-operations",
+      "tags": ["🔦"],
+      "description": "Get the directory name of a path.",
+      "details": "Equivalent to dirname(1).",
+      "expansion": "directory path",
+      "examples": []
+    },
+    "exists": {
+      "name": "exists",
+      "fullName": "%{exists:…}",
+      "category": "file-and-path-operations",
+      "tags": ["🔦"],
+      "description": "Test file existence.",
+      "details": "Expands to 1 if the file exists, 0 otherwise.",
+      "expansion": "1 or 0",
+      "examples": []
+    },
+    "suffix": {
+      "name": "suffix",
+      "fullName": "%{suffix:…}",
+      "category": "file-and-path-operations",
+      "tags": ["🔦"],
+      "description": "Get the suffix of a filename.",
+      "expansion": "file extension",
+      "examples": []
+    },
+    "url2path": {
+      "name": "url2path",
+      "fullName": "%{url2path:…}",
+      "category": "file-and-path-operations",
+      "tags": ["🔦"],
+      "description": "Convert URL to local path.",
+      "expansion": "local path",
+      "examples": []
+    },
+    "uncompress": {
+      "name": "uncompress",
+      "fullName": "%{uncompress:…}",
+      "category": "file-and-path-operations",
+      "tags": [],
+      "description": "Expand to a command for uncompressing a file.",
+      "details": "Used in %setup for uncompressing source files.",
+      "expansion": "uncompression command",
+      "examples": []
+    },
+    "getncpus": {
+      "name": "getncpus",
+      "fullName": "%{getncpus:…}",
+      "category": "environment-info",
+      "tags": [],
+      "description": "Get number of available CPU cores.",
+      "details": "When used as %{getncpus} with no arguments, expands to the number of available CPU cores.",
+      "expansion": "number of CPUs",
+      "examples": []
+    },
+    "getconfdir": {
+      "name": "getconfdir",
+      "fullName": "%getconfdir",
+      "category": "environment-info",
+      "tags": ["🔦"],
+      "description": "Expand to rpm home directory.",
+      "details": "Typically expands to /usr/lib/rpm.",
+      "expansion": "rpm configuration directory",
+      "examples": []
+    },
+    "getenv": {
+      "name": "getenv",
+      "fullName": "%{getenv:...}",
+      "category": "environment-info",
+      "tags": ["🔦"],
+      "description": "Get environment variable.",
+      "details": "Equivalent to getenv(3).",
+      "expansion": "environment variable value",
+      "examples": []
+    },
+    "rpmversion": {
+      "name": "rpmversion",
+      "fullName": "%rpmversion",
+      "category": "environment-info",
+      "tags": ["🔦"],
+      "description": "Expand to running rpm version.",
+      "expansion": "rpm version string",
+      "examples": []
+    },
+    "echo": {
+      "name": "echo",
+      "fullName": "%{echo:…}",
+      "category": "output",
+      "tags": ["🔦"],
+      "description": "Print to stdout.",
+      "details": "The printing happens when the macro is evaluated and expanded.",
+      "expansion": "prints to stdout",
+      "examples": []
+    },
+    "warn": {
+      "name": "warn",
+      "fullName": "%{warn:…}",
+      "category": "output",
+      "tags": ["🔦"],
+      "description": "Print warning to stderr.",
+      "details": "Produced RPM warning is immediately shown in console stderr, and displayed again at the end of rpmbuild execution.",
+      "expansion": "prints warning",
+      "examples": []
+    },
+    "error": {
+      "name": "error",
+      "fullName": "%{error:…}",
+      "category": "output",
+      "tags": ["🔦"],
+      "description": "Print error to stderr and return error.",
+      "details": "Produces an RPM warning, immediately shown in console stderr, then immediately perform Executing(rmbuild) and exit.",
+      "expansion": "prints error, exits",
+      "examples": []
+    },
+    "verbose": {
+      "name": "verbose",
+      "fullName": "%{verbose:…}",
+      "category": "output",
+      "tags": ["🔦"],
+      "description": "Check or use verbose mode.",
+      "details": "%verbose: expands to 1 if rpm is in verbose mode, 0 if not. %{verbose:...}: expands to ... if rpm is in verbose mode, empty string if not.",
+      "expansion": "1/0 or conditional",
+      "examples": []
+    },
+    "S": {
+      "name": "S",
+      "fullName": "%{S:…}",
+      "category": "spec-specific",
+      "tags": [],
+      "description": "Expand to source file name.",
+      "details": "Transforms %{S:123} to %SOURCE123.",
+      "expansion": "source file path",
+      "examples": []
+    },
+    "P": {
+      "name": "P",
+      "fullName": "%{P:…}",
+      "category": "spec-specific",
+      "tags": [],
+      "description": "Expand to patch file name.",
+      "details": "The Patch: version of %{S:…}.",
+      "expansion": "patch file path",
+      "examples": []
+    },
+    "trace": {
+      "name": "trace",
+      "fullName": "%trace",
+      "category": "diagnostics",
+      "tags": ["🔦", "🛠️"],
+      "description": "Toggle print of debugging information.",
+      "expansion": "debugging output",
+      "examples": []
+    },
+    "dump": {
+      "name": "dump",
+      "fullName": "%dump",
+      "category": "diagnostics",
+      "tags": ["🔩"],
+      "description": "Print the active macro table.",
+      "expansion": "macro table",
+      "examples": []
+    },
+    "__file_name": {
+      "name": "__file_name",
+      "fullName": "%__file_name",
+      "category": "diagnostics",
+      "tags": ["🔦"],
+      "description": "Current file being parsed.",
+      "expansion": "file path",
+      "examples": []
+    },
+    "__file_lineno": {
+      "name": "__file_lineno",
+      "fullName": "%__file_lineno",
+      "category": "diagnostics",
+      "tags": ["🔦"],
+      "description": "Line number in current file.",
+      "expansion": "line number",
+      "examples": []
+    },
+    "nil": {
+      "name": "nil",
+      "fullName": "%nil",
+      "category": "miscellaneous",
+      "tags": ["🔰"],
+      "description": "Expand to nothing.",
+      "details": "Defined as %{!?nil}.",
+      "expansion": "empty",
+      "examples": []
+    },
+    "forgemeta": {
+      "name": "forgemeta",
+      "fullName": "%forgemeta …",
+      "category": "preamble",
+      "tags": ["🔢", "🔰"],
+      "description": "Process forge metadata for source archives.",
+      "details": "See https://docs.fedoraproject.org/en-US/packaging-guidelines/SourceURL/#_using_forges_hosted_revision_control.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "v", "description": "verbose"},
+        {"name": "i", "description": "informative"},
+        {"name": "s", "description": "silent"},
+        {"name": "a", "description": "process all source archives"},
+        {"name": "z", "description": "process the n-th source archive"}
+      ],
+      "expansion": "processed metadata",
+      "examples": []
+    },
+    "forgeautosetup": {
+      "name": "forgeautosetup",
+      "fullName": "%forgeautosetup …",
+      "category": "preamble",
+      "tags": ["🔢"],
+      "description": "Auto-setup from forge.",
+      "parameterized": true,
+      "arguments": [{"name": "opts", "description": "options"}],
+      "expansion": "forge setup",
+      "examples": []
+    },
+    "forgesetup": {
+      "name": "forgesetup",
+      "fullName": "%forgesetup …",
+      "category": "preamble",
+      "tags": ["🔢", "🔰"],
+      "description": "Setup from forge.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "z", "description": "archive number"},
+        {"name": "v", "description": "verbose"},
+        {"name": "a", "description": "all archives"}
+      ],
+      "expansion": "forge setup",
+      "examples": []
+    },
+    "forgeversion": {
+      "name": "forgeversion",
+      "fullName": "%forgeversion …",
+      "category": "preamble",
+      "tags": ["🔢", "🔦"],
+      "description": "Get version from forge.",
+      "parameterized": true,
+      "arguments": [{"name": "opts", "description": "options"}],
+      "expansion": "version string",
+      "examples": []
+    },
+    "debug_package": {
+      "name": "debug_package",
+      "fullName": "%debug_package",
+      "category": "preamble",
+      "tags": ["🔰", "🏷️"],
+      "description": "Automatic debug symbol packaging.",
+      "details": "Can be disabled with %define debug_package %nil to prevent RPM from generating -debuginfo/-debugsource packages.",
+      "expansion": "debug packaging",
+      "examples": []
+    },
+    "_build_id_links": {
+      "name": "_build_id_links",
+      "fullName": "%_build_id_links",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Control build-id link generation.",
+      "details": "Settings: none, alldebug, separate, compat. Set to 'none' for problems with /usr/lib/.build-id.",
+      "expansion": "build-id setting",
+      "examples": []
+    },
+    "_missing_build_ids_terminate_build": {
+      "name": "_missing_build_ids_terminate_build",
+      "fullName": "%_missing_build_ids_terminate_build",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Control build termination on missing build IDs.",
+      "details": "Set to 0 to prevent termination.",
+      "expansion": "0 or 1",
+      "examples": []
+    },
+    "__strip": {
+      "name": "__strip",
+      "fullName": "%__strip",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Override strip command.",
+      "details": "Use %global __strip /bin/true to disable stripping.",
+      "expansion": "strip command",
+      "examples": []
+    },
+    "__requires_exclude": {
+      "name": "__requires_exclude",
+      "fullName": "%__requires_exclude",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Exclude patterns from auto-generated Requires.",
+      "details": "rpmbuild generates Requires automatically. Add regex to exclude patterns.",
+      "expansion": "exclusion regex",
+      "examples": []
+    },
+    "__requires_exclude_from": {
+      "name": "__requires_exclude_from",
+      "fullName": "%__requires_exclude_from",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Exclude files from auto-generated Requires.",
+      "expansion": "file path",
+      "examples": []
+    },
+    "__provides_exclude": {
+      "name": "__provides_exclude",
+      "fullName": "%__provides_exclude",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Exclude patterns from auto-generated Provides.",
+      "expansion": "exclusion regex",
+      "examples": []
+    },
+    "__provides_exclude_from": {
+      "name": "__provides_exclude_from",
+      "fullName": "%__provides_exclude_from",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Exclude files from auto-generated Provides.",
+      "expansion": "file path",
+      "examples": []
+    },
+    "__brp_mangle_shebangs_exclude_from": {
+      "name": "__brp_mangle_shebangs_exclude_from",
+      "fullName": "%__brp_mangle_shebangs_exclude_from",
+      "category": "preamble",
+      "tags": ["🔰", "🏷️"],
+      "description": "Exclude files from shebang mangling.",
+      "details": "RPM mangles shebangs by default. Use this to exclude files matching a regex.",
+      "expansion": "exclusion regex",
+      "examples": []
+    },
+    "__brp_mangle_shebangs_exclude": {
+      "name": "__brp_mangle_shebangs_exclude",
+      "fullName": "%__brp_mangle_shebangs_exclude",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Exclude shebangs matching regex.",
+      "expansion": "exclusion regex",
+      "examples": []
+    },
+    "__brp_mangle_shebangs_exclude_file": {
+      "name": "__brp_mangle_shebangs_exclude_file",
+      "fullName": "%__brp_mangle_shebangs_exclude_file",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "File containing shebang exclusion regexes.",
+      "expansion": "file path",
+      "examples": []
+    },
+    "__brp_mangle_shebangs_exclude_from_file": {
+      "name": "__brp_mangle_shebangs_exclude_from_file",
+      "fullName": "%__brp_mangle_shebangs_exclude_from_file",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "File containing file exclusion regexes.",
+      "expansion": "file path",
+      "examples": []
+    },
+    "__brp_mangle_shebangs": {
+      "name": "__brp_mangle_shebangs",
+      "fullName": "%__brp_mangle_shebangs",
+      "category": "preamble",
+      "tags": ["🏷️"],
+      "description": "Shebang mangling post-build script.",
+      "details": "As a last resort, undefine this macro. Try __brp_mangle_shebangs_exclude_from first.",
+      "expansion": "shebang mangling",
+      "examples": []
+    },
+    "bcond_with": {
+      "name": "bcond_with",
+      "fullName": "%bcond_with …",
+      "category": "preamble",
+      "tags": ["🔢", "🔰"],
+      "description": "Disable a conditional build option.",
+      "details": "Takes 1 argument: the name of the conditional. See https://rpm-software-management.github.io/rpm/manual/conditionalbuilds.html",
+      "parameterized": true,
+      "arguments": [
+        {"name": "name", "description": "conditional name"}
+      ],
+      "expansion": "conditional definition",
+      "examples": []
+    },
+    "bcond_without": {
+      "name": "bcond_without",
+      "fullName": "%bcond_without …",
+      "category": "preamble",
+      "tags": ["🔢", "🔰"],
+      "description": "Enable a conditional build option.",
+      "details": "Takes 1 argument: the name of the conditional. See https://rpm-software-management.github.io/rpm/manual/conditionalbuilds.html",
+      "parameterized": true,
+      "arguments": [
+        {"name": "name", "description": "conditional name"}
+      ],
+      "expansion": "conditional definition",
+      "examples": []
+    },
+    "autosetup": {
+      "name": "autosetup",
+      "fullName": "%autosetup …",
+      "category": "prep",
+      "tags": ["🔢", "🔰"],
+      "description": "Uncompress and setup sources.",
+      "details": "By default uncompresses %{SOURCE0}. Wrapper around %setup and %autopatch.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "n", "description": "directory name"},
+        {"name": "p", "description": "patch level"},
+        {"name": "a", "description": "unpack source after cd"},
+        {"name": "b", "description": "unpack source before cd"},
+        {"name": "c", "description": "create directory and cd into it"},
+        {"name": "C", "description": "unknown"},
+        {"name": "D", "description": "do not delete folder"},
+        {"name": "T", "description": "disable unpacking SOURCE0"},
+        {"name": "v", "description": "verbose"},
+        {"name": "S", "description": "specify SCM"},
+        {"name": "N", "description": "do not run autopatch"}
+      ],
+      "expansion": "source setup",
+      "examples": []
+    },
+    "setup": {
+      "name": "setup",
+      "fullName": "%setup …",
+      "category": "prep",
+      "tags": ["🔢", "🚸"],
+      "description": "Uncompress specified sources.",
+      "details": "Only available in spec file. In most cases use %autosetup instead.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "n", "description": "directory name"},
+        {"name": "a", "description": "unpack source after cd"},
+        {"name": "b", "description": "unpack source before cd"},
+        {"name": "c", "description": "create directory and cd into it"},
+        {"name": "C", "description": "unknown"},
+        {"name": "D", "description": "do not delete folder"},
+        {"name": "T", "description": "disable unpacking SOURCE0"},
+        {"name": "q", "description": "quiet"}
+      ],
+      "expansion": "source setup",
+      "examples": []
+    },
+    "autopatch": {
+      "name": "autopatch",
+      "fullName": "%autopatch …",
+      "category": "prep",
+      "tags": ["🔢"],
+      "description": "Apply patches automatically.",
+      "details": "Wrapper around %__apply_patch. Not a wrapper around %patch.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "v", "description": "verbose"},
+        {"name": "q", "description": "quiet"},
+        {"name": "p", "description": "strip path components"},
+        {"name": "m", "description": "apply patches from number"},
+        {"name": "M", "description": "apply patches up to number"}
+      ],
+      "expansion": "patch application",
+      "examples": []
+    },
+    "patch": {
+      "name": "patch",
+      "fullName": "%patch …",
+      "category": "prep",
+      "tags": ["🔢", "🚸"],
+      "description": "Apply a patch.",
+      "details": "Only available in spec file. Use %autopatch instead if possible.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "b", "description": "backup"},
+        {"name": "p", "description": "strip path components"},
+        {"name": "P", "description": "patch number"},
+        {"name": "R", "description": "reverse patch"},
+        {"name": "E", "description": "skip patches that do nothing"},
+        {"name": "z", "description": "patch name"}
+      ],
+      "expansion": "patch application",
+      "examples": []
+    },
+    "buildroot": {
+      "name": "buildroot",
+      "fullName": "%buildroot",
+      "category": "install",
+      "tags": ["🔰"],
+      "description": "Build root directory path.",
+      "details": "Only available in a spec file. Path where files should be installed for packaging.",
+      "expansion": "build root path",
+      "examples": []
+    },
+    "find_lang": {
+      "name": "find_lang",
+      "fullName": "%find_lang",
+      "category": "install",
+      "tags": ["🔰"],
+      "description": "Generate language file lists.",
+      "details": "Expands to /usr/lib/rpm/find-lang.sh %{buildroot}. Used for i18n files.",
+      "expansion": "find-lang command",
+      "examples": []
+    },
+    "fdupes": {
+      "name": "fdupes",
+      "fullName": "%fdupes …",
+      "category": "install",
+      "tags": ["🔢"],
+      "description": "Deduplicate files using hardlinks.",
+      "details": "Takes a glob path. Use -s for symlinks instead of hardlinks.",
+      "parameterized": true,
+      "arguments": [
+        {"name": "s", "description": "use symlinks"}
+      ],
+      "expansion": "deduplication",
+      "examples": []
+    },
+    "configure": {
+      "name": "configure",
+      "fullName": "%configure",
+      "category": "c-c++",
+      "tags": [],
+      "description": "Run configure script with correct flags.",
+      "details": "Expands to ./configure with correct flags. May need autoreconf -fi for some packages.",
+      "expansion": "configure command",
+      "examples": []
+    },
+    "make_build": {
+      "name": "make_build",
+      "fullName": "%make_build",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Run make with correct flags.",
+      "details": "Equivalent to %__make -O -j${RPM_BUILD_NCPUS} V=1 VERBOSE=1.",
+      "expansion": "make command",
+      "examples": []
+    },
+    "make_install": {
+      "name": "make_install",
+      "fullName": "%make_install",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Run make install with correct flags.",
+      "details": "Equivalent to %__make install DESTDIR=%?buildroot INSTALL=\"%__install -p\".",
+      "expansion": "make install command",
+      "examples": []
+    },
+    "makeinstall": {
+      "name": "makeinstall",
+      "fullName": "%makeinstall",
+      "category": "c-c++",
+      "tags": ["🚸"],
+      "description": "Deprecated make install macro.",
+      "details": "Use %make_install instead.",
+      "expansion": "make install command",
+      "examples": []
+    },
+    "cmake": {
+      "name": "cmake",
+      "fullName": "%cmake",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Run cmake with correct flags.",
+      "details": "Expands to %__cmake with correct flags like -B \"%__cmake_builddir\".",
+      "expansion": "cmake command",
+      "examples": []
+    },
+    "cmake_build": {
+      "name": "cmake_build",
+      "fullName": "%cmake_build",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Build with cmake.",
+      "details": "Equivalent to %__cmake --build \"%__cmake_builddir\" %?_smp_mflags --verbose.",
+      "expansion": "cmake build command",
+      "examples": []
+    },
+    "cmake_install": {
+      "name": "cmake_install",
+      "fullName": "%cmake_install",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Install with cmake.",
+      "details": "Equivalent to DESTDIR=\"%buildroot\" %__cmake --install \"%__cmake_builddir\".",
+      "expansion": "cmake install command",
+      "examples": []
+    },
+    "meson": {
+      "name": "meson",
+      "fullName": "%meson",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Setup meson build.",
+      "details": "Equivalent to %__meson setup with correct flags.",
+      "expansion": "meson setup command",
+      "examples": []
+    },
+    "meson_build": {
+      "name": "meson_build",
+      "fullName": "%meson_build",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Build with meson.",
+      "details": "Equivalent to %__meson compile -C \"%_vpath_builddir\" -j %_smp_build_ncpus.",
+      "expansion": "meson compile command",
+      "examples": []
+    },
+    "meson_install": {
+      "name": "meson_install",
+      "fullName": "%meson_install",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Install with meson.",
+      "details": "Equivalent to DESTDIR=%buildroot %__meson install -C %_vpath_builddir --no-rebuild.",
+      "expansion": "meson install command",
+      "examples": []
+    },
+    "meson_test": {
+      "name": "meson_test",
+      "fullName": "%meson_test",
+      "category": "c-c++",
+      "tags": ["🔰"],
+      "description": "Run meson tests.",
+      "details": "Equivalent to %__meson test -C %_vpath_builddir --no-rebuild.",
+      "expansion": "meson test command",
+      "examples": []
+    },
+    "ninja_build": {
+      "name": "ninja_build",
+      "fullName": "%ninja_build",
+      "category": "c-c++",
+      "tags": [],
+      "description": "Build with ninja.",
+      "details": "Equivalent to %__ninja %__ninja_common_opts.",
+      "expansion": "ninja build command",
+      "examples": []
+    },
+    "ninja_install": {
+      "name": "ninja_install",
+      "fullName": "%ninja_install",
+      "category": "c-c++",
+      "tags": [],
+      "description": "Install with ninja.",
+      "details": "Equivalent to DESTDIR=%buildroot %__ninja install %__ninja_common_opts.",
+      "expansion": "ninja install command",
+      "examples": []
+    },
+    "ninja_test": {
+      "name": "ninja_test",
+      "fullName": "%ninja_test",
+      "category": "c-c++",
+      "tags": [],
+      "description": "Run ninja tests.",
+      "details": "Equivalent to %__ninja test %__ninja_common_opts.",
+      "expansion": "ninja test command",
+      "examples": []
+    },
+    "build_cflags": {
+      "name": "build_cflags",
+      "fullName": "%build_cflags",
+      "category": "c-c++",
+      "tags": ["🏷️"],
+      "description": "C compiler flags.",
+      "details": "Equivalent to %{__build_flags_lang_c} %{?_distro_extra_cflags}.",
+      "expansion": "CFLAGS",
+      "examples": []
+    },
+    "_distro_extra_cflags": {
+      "name": "_distro_extra_cflags",
+      "fullName": "%_distro_extra_cflags",
+      "category": "c-c++",
+      "tags": ["🏷️"],
+      "description": "Distro-specific C compiler flags.",
+      "details": "Not defined by default on Fedora. Use for -Wno-… flags.",
+      "expansion": "extra CFLAGS",
+      "examples": []
+    },
+    "build_cxxflags": {
+      "name": "build_cxxflags",
+      "fullName": "%build_cxxflags",
+      "category": "c-c++",
+      "tags": ["🏷️"],
+      "description": "C++ compiler flags.",
+      "details": "Equivalent to %{__build_flags_lang_cxx} %{?_distro_extra_cxxflags}.",
+      "expansion": "CXXFLAGS",
+      "examples": []
+    },
+    "_distro_extra_cxxflags": {
+      "name": "_distro_extra_cxxflags",
+      "fullName": "%_distro_extra_cxxflags",
+      "category": "c-c++",
+      "tags": ["🏷️"],
+      "description": "Distro-specific C++ compiler flags.",
+      "details": "Not defined by default on Fedora.",
+      "expansion": "extra CXXFLAGS",
+      "examples": []
+    },
+    "ldc_arches": {
+      "name": "ldc_arches",
+      "fullName": "%ldc_arches",
+      "category": "d",
+      "tags": [],
+      "description": "LDC architectures.",
+      "expansion": "architecture list",
+      "examples": []
+    },
+    "_d_optflags": {
+      "name": "_d_optflags",
+      "fullName": "%_d_optflags",
+      "category": "d",
+      "tags": [],
+      "description": "D language optimization flags.",
+      "expansion": "D optimization flags",
+      "examples": []
+    },
+    "nim_prep": {
+      "name": "nim_prep",
+      "fullName": "%nim_prep",
+      "category": "nim",
+      "tags": [],
+      "description": "Prepare Nim build environment.",
+      "details": "Sets mold as linker and runs nimble setup -y.",
+      "expansion": "nim setup",
+      "examples": []
+    },
+    "nim_build": {
+      "name": "nim_build",
+      "fullName": "%nim_build",
+      "category": "nim",
+      "tags": [],
+      "description": "Build Nim project.",
+      "details": "Same as %nim_c.",
+      "expansion": "nim build command",
+      "examples": []
+    },
+    "nim_c": {
+      "name": "nim_c",
+      "fullName": "%nim_c",
+      "category": "nim",
+      "tags": [],
+      "description": "Compile Nim project with C backend.",
+      "details": "Equivalent to nim c -d:release -t:\"%nim_tflags\" -l:\"%nim_lflags\".",
+      "expansion": "nim compile command",
+      "examples": []
+    },
+    "rustflags_debuginfo": {
+      "name": "rustflags_debuginfo",
+      "fullName": "%rustflags_debuginfo",
+      "category": "rust",
+      "tags": ["🏷️"],
+      "description": "Rust debug info flags.",
+      "details": "Default is 2. Lower if gdb crashes in find-debuginfo.",
+      "expansion": "debug info level",
+      "examples": []
+    },
+    "_bindir": {
+      "name": "_bindir",
+      "fullName": "%{_bindir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "User binaries directory.",
+      "details": "Expands to /usr/bin.",
+      "expansion": "/usr/bin",
+      "examples": []
+    },
+    "_sbindir": {
+      "name": "_sbindir",
+      "fullName": "%{_sbindir}",
+      "category": "paths",
+      "tags": [],
+      "description": "System admin binaries directory.",
+      "details": "Expands to /usr/sbin.",
+      "expansion": "/usr/sbin",
+      "examples": []
+    },
+    "_sysconfdir": {
+      "name": "_sysconfdir",
+      "fullName": "%{_sysconfdir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "System configuration directory.",
+      "details": "Expands to /etc.",
+      "expansion": "/etc",
+      "examples": []
+    },
+    "_datadir": {
+      "name": "_datadir",
+      "fullName": "%{_datadir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "Data directory.",
+      "details": "Expands to /usr/share.",
+      "expansion": "/usr/share",
+      "examples": []
+    },
+    "_mandir": {
+      "name": "_mandir",
+      "fullName": "%{_mandir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "Manual pages directory.",
+      "details": "Expands to /usr/share/man.",
+      "expansion": "/usr/share/man",
+      "examples": []
+    },
+    "_infodir": {
+      "name": "_infodir",
+      "fullName": "%{_infodir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Info documentation directory.",
+      "details": "Expands to /usr/share/info.",
+      "expansion": "/usr/share/info",
+      "examples": []
+    },
+    "_libdir": {
+      "name": "_libdir",
+      "fullName": "%{_libdir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "Libraries directory.",
+      "details": "Expands to /usr/lib64 on 64-bit systems, /usr/lib on 32-bit or noarch.",
+      "expansion": "/usr/lib64 or /usr/lib",
+      "examples": []
+    },
+    "_includedir": {
+      "name": "_includedir",
+      "fullName": "%{_includedir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Include files directory.",
+      "details": "Expands to /usr/include.",
+      "expansion": "/usr/include",
+      "examples": []
+    },
+    "_datarootdir": {
+      "name": "_datarootdir",
+      "fullName": "%{_datarootdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Data root directory.",
+      "details": "Expands to /usr/share.",
+      "expansion": "/usr/share",
+      "examples": []
+    },
+    "_docdir": {
+      "name": "_docdir",
+      "fullName": "%{_docdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Documentation directory.",
+      "details": "Expands to /usr/share/doc.",
+      "expansion": "/usr/share/doc",
+      "examples": []
+    },
+    "_defaultdocdir": {
+      "name": "_defaultdocdir",
+      "fullName": "%{_defaultdocdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Default license directory.",
+      "details": "Expands to /usr/share/licenses.",
+      "expansion": "/usr/share/licenses",
+      "examples": []
+    },
+    "_unitdir": {
+      "name": "_unitdir",
+      "fullName": "%{_unitdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Systemd unit directory.",
+      "details": "Expands to /usr/lib/systemd/system.",
+      "expansion": "/usr/lib/systemd/system",
+      "examples": []
+    },
+    "_userunitdir": {
+      "name": "_userunitdir",
+      "fullName": "%{_userunitdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Systemd user unit directory.",
+      "details": "Expands to /usr/lib/systemd/user.",
+      "expansion": "/usr/lib/systemd/user",
+      "examples": []
+    },
+    "_presetdir": {
+      "name": "_presetdir",
+      "fullName": "%{_presetdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Systemd preset directory.",
+      "details": "Expands to /usr/lib/systemd/system-preset.",
+      "expansion": "/usr/lib/systemd/system-preset",
+      "examples": []
+    },
+    "_userpresetdir": {
+      "name": "_userpresetdir",
+      "fullName": "%{_userpresetdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Systemd user preset directory.",
+      "details": "Expands to /usr/lib/systemd/user-preset.",
+      "expansion": "/usr/lib/systemd/user-preset",
+      "examples": []
+    },
+    "_tmpfilesdir": {
+      "name": "_tmpfilesdir",
+      "fullName": "%{_tmpfilesdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Tmpfiles.d directory.",
+      "details": "Expands to /usr/lib/tmpfiles.d.",
+      "expansion": "/usr/lib/tmpfiles.d",
+      "examples": []
+    },
+    "_udevrulesdir": {
+      "name": "_udevrulesdir",
+      "fullName": "%{_udevrulesdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Udev rules directory.",
+      "details": "Expands to /usr/lib/udev/rules.d.",
+      "expansion": "/usr/lib/udev/rules.d",
+      "examples": []
+    },
+    "_sysusersdir": {
+      "name": "_sysusersdir",
+      "fullName": "%{_sysusersdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Sysusers.d directory.",
+      "details": "Expands to /usr/lib/sysusers.d.",
+      "expansion": "/usr/lib/sysusers.d",
+      "examples": []
+    },
+    "_sysctldir": {
+      "name": "_sysctldir",
+      "fullName": "%{_sysctldir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Sysctl.d directory.",
+      "details": "Expands to /usr/lib/sysctl.d.",
+      "expansion": "/usr/lib/sysctl.d",
+      "examples": []
+    },
+    "_modprobedir": {
+      "name": "_modprobedir",
+      "fullName": "%{_modprobedir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Modprobe.d directory.",
+      "details": "Expands to /usr/lib/modprobe.d.",
+      "expansion": "/usr/lib/modprobe.d",
+      "examples": []
+    },
+    "_modulesloaddir": {
+      "name": "_modulesloaddir",
+      "fullName": "%{_modulesloaddir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Modules-load.d directory.",
+      "details": "Expands to /usr/lib/modules-load.d.",
+      "expansion": "/usr/lib/modules-load.d",
+      "examples": []
+    },
+    "_rpmconfigdir": {
+      "name": "_rpmconfigdir",
+      "fullName": "%{_rpmconfigdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "RPM configuration directory.",
+      "details": "Expands to /usr/lib/rpm.",
+      "expansion": "/usr/lib/rpm",
+      "examples": []
+    },
+    "_rpmmacrodir": {
+      "name": "_rpmmacrodir",
+      "fullName": "%{_rpmmacrodir}",
+      "category": "paths",
+      "tags": [],
+      "description": "RPM macro directory.",
+      "details": "Expands to /usr/lib/rpm/macros.d.",
+      "expansion": "/usr/lib/rpm/macros.d",
+      "examples": []
+    },
+    "_var": {
+      "name": "_var",
+      "fullName": "%{_var}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "Variable data directory.",
+      "details": "Expands to /var.",
+      "expansion": "/var",
+      "examples": []
+    },
+    "_sharedstatedir": {
+      "name": "_sharedstatedir",
+      "fullName": "%{_sharedstatedir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Shared state directory.",
+      "details": "Expands to /var/lib.",
+      "expansion": "/var/lib",
+      "examples": []
+    },
+    "_rundir": {
+      "name": "_rundir",
+      "fullName": "%{_rundir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Runtime directory.",
+      "details": "Expands to /run.",
+      "expansion": "/run",
+      "examples": []
+    },
+    "_runstatedir": {
+      "name": "_runstatedir",
+      "fullName": "%{_runstatedir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Runtime state directory.",
+      "details": "Expands to /run.",
+      "expansion": "/run",
+      "examples": []
+    },
+    "_usr": {
+      "name": "_usr",
+      "fullName": "%{_usr}",
+      "category": "paths",
+      "tags": [],
+      "description": "usr directory.",
+      "details": "Expands to /usr.",
+      "expansion": "/usr",
+      "examples": []
+    },
+    "_prefix": {
+      "name": "_prefix",
+      "fullName": "%{_prefix}",
+      "category": "paths",
+      "tags": [],
+      "description": "Prefix directory.",
+      "details": "Expands to /usr.",
+      "expansion": "/usr",
+      "examples": []
+    },
+    "_exec_prefix": {
+      "name": "_exec_prefix",
+      "fullName": "%{_exec_prefix}",
+      "category": "paths",
+      "tags": [],
+      "description": "Exec prefix directory.",
+      "details": "Expands to /usr.",
+      "expansion": "/usr",
+      "examples": []
+    },
+    "_topdir": {
+      "name": "_topdir",
+      "fullName": "%{_topdir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "RPM build top directory.",
+      "details": "Expands to /home/mado/rpmbuild.",
+      "expansion": "/home/mado/rpmbuild",
+      "examples": []
+    },
+    "_builddir": {
+      "name": "_builddir",
+      "fullName": "%{_builddir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Build directory.",
+      "details": "Expands to /home/mado/rpmbuild/BUILD.",
+      "expansion": "/home/mado/rpmbuild/BUILD",
+      "examples": []
+    },
+    "_rpmdir": {
+      "name": "_rpmdir",
+      "fullName": "%{_rpmdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "RPM output directory.",
+      "details": "Expands to /home/mado/rpmbuild/RPMS.",
+      "expansion": "/home/mado/rpmbuild/RPMS",
+      "examples": []
+    },
+    "_sourcedir": {
+      "name": "_sourcedir",
+      "fullName": "%{_sourcedir}",
+      "category": "paths",
+      "tags": ["🔰"],
+      "description": "Sources directory.",
+      "details": "Expands to /home/mado/rpmbuild/SOURCES.",
+      "expansion": "/home/mado/rpmbuild/SOURCES",
+      "examples": []
+    },
+    "_specdir": {
+      "name": "_specdir",
+      "fullName": "%{_specdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Specs directory.",
+      "details": "Expands to /home/mado/rpmbuild/SPECS.",
+      "expansion": "/home/mado/rpmbuild/SPECS",
+      "examples": []
+    },
+    "_srcrpmdir": {
+      "name": "_srcrpmdir",
+      "fullName": "%{_srcrpmdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Source RPM directory.",
+      "details": "Expands to /home/mado/rpmbuild/SRPMS.",
+      "expansion": "/home/mado/rpmbuild/SRPMS",
+      "examples": []
+    },
+    "buildsubdir": {
+      "name": "buildsubdir",
+      "fullName": "%{buildsubdir}",
+      "category": "paths",
+      "tags": [],
+      "description": "Build subdirectory.",
+      "details": "Set by %setup -n to the directory name.",
+      "expansion": "build subdirectory",
+      "examples": []
+    },
+    "name": {
+      "name": "name",
+      "fullName": "%{name}",
+      "category": "automatic",
+      "tags": ["🔰", "🏷️"],
+      "description": "Package name.",
+      "details": "Defined in the Name: preamble field.",
+      "expansion": "package name",
+      "examples": []
+    },
+    "version": {
+      "name": "version",
+      "fullName": "%{version}",
+      "category": "automatic",
+      "tags": ["🔰", "🏷️"],
+      "description": "Package version.",
+      "details": "Defined in the Version: preamble field.",
+      "expansion": "package version",
+      "examples": []
+    },
+    "release": {
+      "name": "release",
+      "fullName": "%{release}",
+      "category": "automatic",
+      "tags": ["🔰", "🏷️"],
+      "description": "Package release.",
+      "details": "Defined in the Release: preamble field.",
+      "expansion": "package release",
+      "examples": []
+    },
+    "epoch": {
+      "name": "epoch",
+      "fullName": "%{epoch}",
+      "category": "automatic",
+      "tags": ["🏷️"],
+      "description": "Package epoch.",
+      "details": "Defined in the Epoch: preamble field.",
+      "expansion": "epoch number",
+      "examples": []
+    },
+    "summary": {
+      "name": "summary",
+      "fullName": "%{summary}",
+      "category": "automatic",
+      "tags": ["🏷️"],
+      "description": "Package summary.",
+      "details": "Defined in the Summary: preamble field.",
+      "expansion": "package summary",
+      "examples": []
+    },
+    "description": {
+      "name": "description",
+      "fullName": "%description",
+      "category": "sections",
+      "tags": ["🏷️"],
+      "description": "Package description section.",
+      "details": "Specifies the description of a package. Not a section, but a directive.",
+      "expansion": "package description",
+      "examples": []
+    },
+    "package": {
+      "name": "package",
+      "fullName": "%package",
+      "category": "sections",
+      "tags": ["🏷️"],
+      "description": "Subpackage declaration.",
+      "details": "Specifies the preambles for a subpackage.",
+      "expansion": "subpackage definition",
+      "examples": []
+    },
+    "prep": {
+      "name": "prep",
+      "fullName": "%prep",
+      "category": "sections",
+      "tags": ["🔰", "🏷️"],
+      "description": "Preparation section.",
+      "details": "Required section that prepares sources by extracting them to the build directory.",
+      "expansion": "prep section",
+      "examples": []
+    },
+    "build": {
+      "name": "build",
+      "fullName": "%build",
+      "category": "sections",
+      "tags": ["🔰", "🏷️"],
+      "description": "Build section.",
+      "details": "Optional section where sources are compiled to binaries.",
+      "expansion": "build section",
+      "examples": []
+    },
+    "install": {
+      "name": "install",
+      "fullName": "%install",
+      "category": "sections",
+      "tags": ["🔰", "🏷️"],
+      "description": "Install section.",
+      "details": "Required section where software installation layout is prepared.",
+      "expansion": "install section",
+      "examples": []
+    },
+    "check": {
+      "name": "check",
+      "fullName": "%check",
+      "category": "sections",
+      "tags": ["🔰", "🏷️"],
+      "description": "Check section.",
+      "details": "Optional section where tests are executed.",
+      "expansion": "check section",
+      "examples": []
+    },
+    "files": {
+      "name": "files",
+      "fullName": "%files",
+      "category": "sections",
+      "tags": ["🔰", "🏷️"],
+      "description": "Files section.",
+      "details": "Required section that specifies all files that the package contains.",
+      "expansion": "files list",
+      "examples": []
+    }
+  },
+  "categories": {
+    "macro-manipulation": {
+      "name": "Macro Manipulation",
+      "description": "Macros for defining, modifying, and manipulating other macros"
+    },
+    "string-operations": {
+      "name": "String Operations",
+      "description": "Macros for manipulating strings and text"
+    },
+    "file-and-path-operations": {
+      "name": "File and Path Operations",
+      "description": "Macros for working with files and paths"
+    },
+    "environment-info": {
+      "name": "Environment Info",
+      "description": "Macros for getting environment and system information"
+    },
+    "output": {
+      "name": "Output",
+      "description": "Macros for printing output during build"
+    },
+    "spec-specific": {
+      "name": "Spec-Specific",
+      "description": "Macros specific to spec file handling"
+    },
+    "diagnostics": {
+      "name": "Diagnostics",
+      "description": "Macros for debugging and diagnostics"
+    },
+    "miscellaneous": {
+      "name": "Miscellaneous",
+      "description": "Miscellaneous macros"
+    },
+    "preamble": {
+      "name": "Preamble Macros",
+      "description": "Macros typically used in the preamble section"
+    },
+    "prep": {
+      "name": "Prep Section Macros",
+      "description": "Macros used in the %prep section"
+    },
+    "install": {
+      "name": "Install Section Macros",
+      "description": "Macros used in the %install section"
+    },
+    "c-c++": {
+      "name": "C and C++",
+      "description": "Macros for C and C++ build systems"
+    },
+    "d": {
+      "name": "D Language",
+      "description": "Macros for D language packaging"
+    },
+    "nim": {
+      "name": "Nim",
+      "description": "Macros for Nim language packaging"
+    },
+    "rust": {
+      "name": "Rust",
+      "description": "Macros for Rust language packaging"
+    },
+    "paths": {
+      "name": "Path Macros",
+      "description": "Macros that expand to common filesystem paths"
+    },
+    "automatic": {
+      "name": "Automatic Macros",
+      "description": "Automatically defined macros from preamble fields"
+    },
+    "sections": {
+      "name": "Section Macros",
+      "description": "Macros that define spec file sections"
+    }
+  },
+  "tags": {
+    "🔰": { "name": "Common", "description": "Relatively common macro" },
+    "🔢": { "name": "Parameterized", "description": "Parameterized macro" },
+    "🔦": { "name": "Uncommon", "description": "Relatively uncommon" },
+    "🚸": { "name": "Discouraged", "description": "Not recommended" },
+    "🛠️": { "name": "Advanced", "description": "Advanced macro" },
+    "🔩": { "name": "CLI Only", "description": "Usually used with rpm -E" },
+    "🏷️": { "name": "Auto-defined", "description": "Usually defined but not used directly" }
+  }
+}

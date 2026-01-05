@@ -1,0 +1,222 @@
+---
+import macrosData from '../data/macros/macros.json';
+
+interface Props {
+  name: string;
+  args?: string;
+}
+
+const { name, args } = Astro.props;
+const macroKey = name.toLowerCase();
+const macro = macrosData.macros[macroKey];
+
+const fullName = macro?.fullName || `%${name}`;
+const description = macro?.description || 'Unknown macro';
+const expansion = macro?.expansion;
+const category = macro?.category || 'unknown';
+const tags = macro?.tags || [];
+---
+
+{macro ? (
+  <span class="macro-hover-wrapper" data-macro={macroKey}>
+    <span class="macro-trigger" tabindex="0" role="button" aria-label={`View ${fullName} documentation`}>
+      <code class="macro-code">{fullName}{args ? ` ${decodeURIComponent(args)}` : ''}</code>
+    </span>
+    <span class="macro-popup" role="tooltip">
+      <span class="popup-header">
+        <code class="popup-title">{fullName}</code>
+        {tags.length > 0 && (
+          <span class="popup-tags">
+            {tags.map(tag => (
+              <span class="tag">{tag}</span>
+            ))}
+          </span>
+        )}
+      </span>
+      <span class="popup-description">{description}</span>
+      {expansion && (
+        <div class="popup-expansion">
+          <span class="expansion-label">Expands to:</span>
+          <code class="expansion-code">{expansion}</code>
+        </div>
+      )}
+      <a href={`/reference/macros/#${macroKey}`} class="popup-link">View full documentation →</a>
+    </span>
+  </span>
+) : (
+  <code class="macro-unknown">{fullName}</code>
+)}
+
+<style>
+  .macro-hover-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+  }
+
+  .macro-code {
+    color: var(--sl-color-accent);
+    background: var(--sl-color-accent-low);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    font-family: var(--sl-font-mono);
+    font-size: 0.9em;
+    transition: all 0.2s ease;
+  }
+
+  .macro-trigger:hover .macro-code {
+    background: var(--sl-color-accent);
+    color: var(--sl-color-inverted);
+  }
+
+  .macro-unknown {
+    color: var(--sl-color-text-light);
+    font-family: var(--sl-font-mono);
+  }
+
+  .macro-popup {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    min-width: 250px;
+    max-width: 350px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 1000;
+    text-align: left;
+  }
+
+  .macro-hover-wrapper:hover .macro-popup,
+  .macro-hover-wrapper:focus-within .macro-popup,
+  .macro-trigger:focus + .macro-popup {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  .popup-title {
+    color: var(--sl-color-text-accent);
+    font-weight: 700;
+    font-size: 0.9rem;
+    font-family: var(--sl-font-mono);
+  }
+
+  .popup-tags {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 9999px;
+    background: var(--sl-color-gray-5);
+    color: var(--sl-color-gray-2);
+  }
+
+  .popup-description {
+    display: block;
+    color: var(--sl-color-text);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 0.5rem;
+  }
+
+  .popup-expansion {
+    display: block;
+    background: var(--sl-color-gray-6);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin-top: 0.5rem;
+  }
+
+  .expansion-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--sl-color-gray-3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .expansion-code {
+    display: block;
+    color: var(--sl-color-text-light);
+    font-size: 0.8rem;
+    font-family: var(--sl-font-mono);
+    word-break: break-all;
+  }
+
+  .popup-link {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--sl-color-accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .popup-link:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .macro-popup {
+      position: fixed;
+      bottom: 1rem;
+      left: 1rem;
+      right: 1rem;
+      transform: none;
+      min-width: auto;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  function initMacroHovers() {
+    const wrappers = document.querySelectorAll('.macro-hover-wrapper');
+    
+    wrappers.forEach(wrapper => {
+      const trigger = wrapper.querySelector('.macro-trigger');
+      const popup = wrapper.querySelector('.macro-popup');
+      
+      if (trigger && popup) {
+        trigger.addEventListener('mouseenter', () => {
+          popup.setAttribute('aria-hidden', 'false');
+        });
+        
+        trigger.addEventListener('mouseleave', () => {
+          popup.setAttribute('aria-hidden', 'true');
+        });
+        
+        trigger.addEventListener('focus', () => {
+          popup.setAttribute('aria-hidden', 'false');
+        });
+        
+        trigger.addEventListener('blur', () => {
+          popup.setAttribute('aria-hidden', 'true');
+        });
+      }
+    });
+  }
+
+  initMacroHovers();
+  document.addEventListener('astro:page-load', initMacroHovers);
+</script>

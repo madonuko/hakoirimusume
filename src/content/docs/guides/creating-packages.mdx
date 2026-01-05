@@ -1,0 +1,163 @@
+---
+title: Creating Your First Package
+description: Step-by-step guide to creating your first RPM package
+sidebar:
+  order: 2
+---
+
+import Callout from '../../../components/Callout.astro';
+
+# Creating Your First RPM Package
+
+This guide walks you through creating a complete RPM package from start to finish.
+
+## Prerequisites
+
+Ensure you have the necessary tools installed:
+
+```bash
+dnf install rpmdevtools rpm-build gcc make
+```
+
+## Step 1: Create the Build Directory Structure
+
+```bash
+rpmdev-setuptree
+```
+
+This creates:
+```
+~/rpmbuild/
+├── BUILD/       # Build directory
+├── BUILDROOT/   # Build root directory
+├── RPMS/        # Output RPM files
+├── SOURCES/     # Source tarballs
+├── SPECS/       # Spec files
+└── SRPMS/       # Source RPMs
+```
+
+## Step 2: Create a Simple Program
+
+Let's create a simple "Hello World" program:
+
+```bash
+mkdir -p ~/hello-world/src
+cat > ~/hello-world/src/hello.c << 'EOF'
+#include <stdio.h>
+
+int main() {
+    printf("Hello, World!\n");
+    return 0;
+}
+EOF
+
+cat > ~/hello-world/Makefile << 'EOF'
+CC = gcc
+CFLAGS = -Wall
+
+all: hello
+
+hello: hello.c
+	$(CC) $(CFLAGS) -o hello hello.c
+
+clean:
+	rm -f hello
+
+install:
+	install -d $(DESTDIR)/usr/bin
+	install -m 755 hello $(DESTDIR)/usr/bin
+EOF
+```
+
+## Step 3: Create a Source Tarball
+
+```bash
+cd ~/hello-world
+tar -czvf ~/rpmbuild/SOURCES/hello-world-1.0.0.tar.gz .
+```
+
+## Step 4: Write the Spec File
+
+Create `~/rpmbuild/SPECS/hello-world.spec`:
+
+```bash
+Name:           hello-world
+Version:        1.0.0
+Release:        1%{?dist}
+Summary:        A simple Hello World program
+
+License:        MIT
+URL:            https://example.com/hello-world
+Source0:        %{url}/hello-world-%{version}.tar.gz
+
+BuildRequires:  gcc
+BuildRequires:  make
+
+%description
+A simple "Hello World" program written in C.
+
+%prep
+%autosetup
+
+%build
+%make_build
+
+%install
+%make_install
+
+%files
+%license LICENSE
+%doc README.md
+%{_bindir}/hello
+```
+
+## Step 5: Build the Package
+
+```bash
+rpmbuild -bb ~/rpmbuild/SPECS/hello-world.spec
+```
+
+If successful, you'll find the RPM in:
+```
+~/rpmbuild/RPMS/x86_64/hello-world-1.0.0-1.fc*.x86_64.rpm
+```
+
+## Step 6: Test the Package
+
+```bash
+# Install and test
+sudo dnf install ~/rpmbuild/RPMS/x86_64/hello-world-1.0.0-1.fc*.x86_64.rpm
+
+# Run the program
+hello
+
+# Uninstall
+sudo dnf remove hello-world
+```
+
+## Common Issues and Solutions
+
+<Callout type="warning" title="Empty %files file">
+  If you see an error about an empty %files file, ensure you have the `%{_bindir}/your-program` line in your %files section.
+</Callout>
+
+<Callout type="warning" title="Build IDs">
+  If you encounter build ID issues, try adding:
+  ```bash
+  %define _build_id_links none
+  ```
+</Callout>
+
+## Best Practices
+
+1. **Use Macros**: Use path macros like `%{_bindir}` instead of hardcoded paths
+2. **License Files**: Always include license files with `%license`
+3. **Documentation**: Include README and other docs with `%doc`
+4. **Dependencies**: Declare all BuildRequires explicitly
+5. **Conditional Builds**: Use `%bcond_with` and `%bcond_without` for optional features
+
+## Next Steps
+
+- Learn about [conditional builds](/reference/macros/#bcond_with)
+- Explore [CMake and Meson macros](/reference/macros/#cmake)
+- Understand [debug packages](/reference/macros/#debug_package)

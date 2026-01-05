@@ -1,0 +1,19 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={['split-left', className]}>
+  <slot />
+</div>
+
+<style>
+  .split-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+</style>

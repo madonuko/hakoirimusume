@@ -1,0 +1,26 @@
+---
+import macrosData from '../data/macros/macros.json';
+---
+
+<script is:inline type="application/json" id="macro-data">
+  {JSON.stringify(macrosData)}
+</script>
+
+<script is:inline src="/scripts/macro-hover.js" defer></script>
+
+<script is:inline>
+  // Fallback initialization
+  function initMacroHovers() {
+    if (typeof transformMacros === 'function') {
+      transformMacros();
+    }
+  }
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMacroHovers);
+  } else {
+    initMacroHovers();
+  }
+  
+  document.addEventListener('astro:page-load', initMacroHovers);
+</script>

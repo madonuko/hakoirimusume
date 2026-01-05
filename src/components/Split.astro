@@ -1,0 +1,45 @@
+---
+interface Props {
+  direction?: 'horizontal' | 'vertical';
+}
+
+const { direction = 'horizontal' } = Astro.props;
+---
+
+<div class={`split split-${direction}`}>
+  <div class="split-left">
+    <slot name="left" />
+  </div>
+  <div class="split-right">
+    <slot name="right" />
+  </div>
+</div>
+
+<style>
+  .split {
+    display: grid;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .split-horizontal {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .split-vertical {
+    grid-template-rows: auto auto;
+  }
+
+  .split-left,
+  .split-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .split-horizontal {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

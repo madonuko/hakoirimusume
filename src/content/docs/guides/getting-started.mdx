@@ -1,0 +1,163 @@
+---
+title: Getting Started with RPM Packaging
+description: Learn the basics of creating RPM packages
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import Callout from '../../../components/Callout.astro';
+
+# Getting Started with RPM Packaging
+
+Welcome to the world of RPM packaging! This guide will walk you through the fundamentals of creating RPM packages.
+
+## What is an RPM Package?
+
+An RPM package is a compressed archive containing files to be installed on a system, along with metadata about the package. RPM packages end with `.rpm` extension and can be installed, upgraded, or removed using the `rpm` or `dnf` package managers.
+
+## Key Concepts
+
+<CardGrid>
+	<Card title="Spec Files" icon="document">
+		The `.spec` file contains all the instructions for building an RPM package, including metadata, source handling, build commands, and file lists.
+	</Card>
+	<Card title="Sources & Patches" icon="open-book">
+		Source archives and patches that modify the original source code to work with your distribution.
+	</Card>
+	<Card title="Macros" icon="puzzle">
+		RPM macros provide powerful templating capabilities for making your spec files more flexible and maintainable.
+	</Card>
+	<Card title="Build Process" icon="tools">
+		The multi-stage build process that prepares sources, compiles code, installs files, and creates the final package.
+	</Card>
+</CardGrid>
+
+## Anatomy of a Spec File
+
+```bash
+Name:           my-package
+Version:        1.0.0
+Release:        1%{?dist}
+Summary:        A brief description of my package
+
+License:        MIT
+URL:            https://example.com/my-package
+Source0:        %{url}/my-package-%{version}.tar.gz
+
+BuildRequires:  gcc
+BuildRequires:  make
+
+%description
+A longer description of what my package does.
+
+%prep
+%autosetup
+
+%build
+%configure
+%make_build
+
+%install
+%make_install
+
+%files
+%license LICENSE
+%doc README.md
+%{_bindir}/my-program
+```
+
+## Key Sections
+
+### Preamble
+
+The preamble contains package metadata like name, version, license, and dependencies. All fields before the first section directive (like `%description`) are part of the preamble.
+
+<CardGrid>
+	<Card title="Name" icon="pencil">
+		Package name (e.g., `my-package`)
+	</Card>
+	<Card title="Version" icon="pencil">
+		Upstream version (e.g., `1.0.0`)
+	</Card>
+	<Card title="Release" icon="pencil">
+		Package release number with optional distribution tag
+	</Card>
+	<Card title="Summary" icon="pencil">
+		One-line package summary
+	</Card>
+</CardGrid>
+
+### %prep Section
+
+Prepares the build environment by extracting sources and applying patches.
+
+### %build Section
+
+Compiles the source code using the appropriate build system.
+
+### %install Section
+
+Installs files to the buildroot directory, creating the package layout.
+
+### %files Section
+
+Lists all files that should be included in the package.
+
+## Essential Macros
+
+<CardGrid>
+	<Card title="%{_bindir}" icon="star" href="/reference/macros/#paths">
+		Expands to `/usr/bin`
+	</Card>
+	<Card title="%{_datadir}" icon="star" href="/reference/macros/#paths">
+		Expands to `/usr/share`
+	</Card>
+	<Card title="%{_libdir}" icon="star" href="/reference/macros/#paths">
+		Expands to `/usr/lib64` (or `/usr/lib` on 32-bit)
+	</Card>
+	<Card title="%{name}" icon="star" href="/reference/macros/#automatic-macros">
+		Expands to the package name
+	</Card>
+	<Card title="%{version}" icon="star" href="/reference/macros/#automatic-macros">
+		Expands to the package version
+	</Card>
+	<Card title="%{release}" icon="star" href="/reference/macros/#automatic-macros">
+		Expands to the package release
+	</Card>
+</CardGrid>
+
+## Next Steps
+
+<CardGrid>
+	<Card title="Learn Macro Syntax" icon="open-book" href="/reference/macro-syntax/">
+		Deep dive into macro definition, parameters, and conditional expansion.
+	</Card>
+	<Card title="Browse Macros" icon="puzzle" href="/reference/macros/">
+		Complete reference of all documented macros.
+	</Card>
+	<Card title="Understanding Sections" icon="list-format" href="/reference/sections/">
+		Learn about each section of the spec file in detail.
+	</Card>
+	<Card title="RPM Expressions" icon="calculate" href="/reference/expressions/">
+		Master version comparisons and logical operations.
+	</Card>
+</CardGrid>
+
+## Setting Up Your Build Environment
+
+```bash
+# Install rpmdevtools
+dnf install rpmdevtools rpm-build
+
+# Create the rpmbuild directory structure
+rpmdev-setuptree
+
+# Verify the structure
+ls ~/rpmbuild/
+BUILD  BUILDROOT  RPMS  SOURCES  SPECS  SRPMS
+```
+
+<Callout type="info">
+  The `rpmdev-setuptool` command creates the standard RPM build directory structure in your home directory.
+</Callout>

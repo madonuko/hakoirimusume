@@ -1,0 +1,236 @@
+---
+title: Sections and Steps
+description: Documentation for different RPM sections, steps and preambles
+---
+
+import Callout from '../../../components/Callout.astro';
+
+# Sections and Steps
+
+<Callout type="info">
+  This section lists out steps in their actual execution order.
+</Callout>
+
+## Preamble
+
+The preamble section is the "default" section of an RPM spec file. All spec files begin with a preamble section that stretches from the top until a new section (e.g., `%description`) is reached.
+
+In Fedora, a preamble is also referred to as a "tag" or a "field".
+
+### Required Preamble Fields
+
+```bash
+Name:           pkgname
+Version:        1.2.3
+Release:        1%?dist
+Summary:        Package summary (usually do not add period at the end)
+License:        MIT
+URL:            https://example.com/
+Source0:        %{url}/%{name}-%{version}.tar.gz
+```
+
+### Optional Preamble Fields
+
+```bash
+Epoch:          0
+AutoReqProv:    1
+AutoReq:        1
+AutoProv:       1
+
+SourceLicense:
+BugURL:
+ModularityLabel:
+DistTag:
+VCS:
+Distribution:
+Copyright:
+Vendor:
+ExcludeArch:
+ExclusiveArch:
+ExcludeOS:
+ExclusiveOS:
+BuildArch:
+BuildArchitectures:
+BuildRequires:
+Group:
+Provides:
+Obsoletes:
+Conflicts:
+Suggests:
+Recommends:
+Enhances:
+Supplements:
+OrderWithRequires:
+BuildConflicts:
+Prefix:
+Prefixes:
+Docdir:
+RemovePathPostFixes:
+BuildSystem:
+BuildOption:
+```
+
+<Callout type="warning">
+  If you want to add comments, use `%{dnl:…}` or start a new line. Adding `# …` at the end of a line does not work.
+</Callout>
+
+### Specifying Dependencies
+
+`Requires:` or `BuildRequires:` must be followed by a space-separated (comma-separated is accepted but not recommended) list of "query". A query is in the format of `x = y` (other comparators including `>=` are accepted) or simply `x`.
+
+```bash
+BuildRequires: gtk4-devel
+BuildRequires: pkgconfig(gtk4)
+BuildRequires: pkgconfig(gtk4) >= 4.18.0
+BuildRequires: (pkgconfig(gtk4) with pkgconfig(gtk4-wayland))
+```
+
+## `%description`
+
+Not a step. `%description [[-n] subpkg]`
+
+Specify the description of a package.
+
+- If `-n subpkg`, specify the description of the subpackage with the name `subpkg` instead.
+- If `subpkg` is given without `-n`, specify the description of the subpackage `%{name}-subpkg` instead.
+
+`%description` (without args) must be specified exactly once in a spec file. Each subpackage requires its own `%description` too.
+
+## `%package`
+
+Not a step. Optional. `%package [-n] subpkg`
+
+Specify the preambles for a subpackage.
+
+- `subpkg` if `-n` is given; and
+- `%{name}-subpkg` otherwise.
+
+## `%mkbuilddir`
+
+Step `Executing(%mkbuilddir)`. Optional.
+
+As the name suggests, this step creates the build directory. This is automatically generated and you should never need to specify this.
+
+## `%prep`
+
+Step `Executing(%prep)`. Required.
+
+This prepares sources by extracting them to the build directory.
+
+The most common body of `%prep` is simply:
+
+```bash
+%prep
+%autosetup
+```
+
+## `%generate_buildrequires`
+
+Step `Executing(%generate_buildrequires)`. Optional. Since `rpm >= 4.15`.
+
+The stdout is intercepted during this step. The output should be a newline-separated list of RPM build dependencies.
+
+## `%conf`
+
+Step `Executing(%conf)`. Optional. Since `rpm >= 4.18`.
+
+In `%conf`, the unpacked sources are configured for building. Different build systems come with their own helper macros.
+
+```bash
+%conf
+%configure
+```
+
+## `%build`
+
+Step `Executing(%build)`. Optional.
+
+In `%build`, the unpacked (and configured) sources are compiled to binaries.
+
+```bash
+%build
+%make_build
+```
+
+## `%install`
+
+Step `Executing(%install)`. Required.
+
+In `%install`, the software installation layout is prepared by creating the necessary directory structure into an initially empty "build root" directory.
+
+```bash
+%install
+%make_install
+
+install -Dpm755 my_binary -t %{buildroot}/usr/bin/
+```
+
+## `%doc`
+
+Step `Executing(%doc)`. **Not a section**. See `%files`.
+
+## `%license`
+
+Step `Executing(%license)`. **Not a section**. See `%files`.
+
+## `%check`
+
+Step `Executing(%check)`. Optional.
+
+If the packaged software has accompanying tests, this is where they should be executed.
+
+```bash
+%check
+%meson_test
+```
+
+## `%clean`
+
+Step `Executing(%clean)`. Optional. **Obsolete**.
+
+Packages should place all their temporaries inside their designated `%builddir`, which rpm will automatically clean up.
+
+## `%rmbuild`
+
+Step `Executing(%rmbuild)`. Optional.
+
+As the name suggests, this basically removes the `%builddir` with `rm -rf`. This is automatically generated.
+
+## `%files`
+
+Not a step. Required (practically). `%files [-f file] [[-n] subpkg]`
+
+This specifies all files that the package (or the subpackage) contains.
+
+`-f` can be used in combination with `%find_lang`. Or rather, it just needs to be a file with a list of line-separated paths.
+
+### File Attributes
+
+Files can be specified with optionally an attribute (aka. a file directive):
+
+```bash
+%artifact …                  # ╰─ rarely used
+%config(…) …                # config file (missingok, noreplace)
+%dir …                      # specify a directory the package owns
+%doc …                      # store file into %{_docdir}
+%docdir                     # documentation directory
+%ghost …                    # mark as owned but don't install
+%license …                  # store into %{_defaultlicensedir}
+%verify(…) …                # verification attributes
+
+# special:
+%attr(…) …                  # file permissions
+%defattr(…)                 # default attributes
+```
+
+### Debug Packages
+
+RPM generates debug packages (`%{name}-debuginfo` and `%{name}-debugsource`) automatically. When you didn't compile with debug symbols:
+
+```bash
+%define debug_package %nil
+```
+
+## Spec File Processing
+
+The spec file (including sections and preambles) is parsed only after all macros are expanded. This means you may expand preambles from macros too.

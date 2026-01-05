@@ -1,0 +1,82 @@
+---
+interface Props {
+  type?: 'info' | 'warning' | 'error' | 'default';
+  title?: string;
+}
+
+const { type = 'default', title } = Astro.props;
+
+const iconMap = {
+  info: 'ℹ️',
+  warning: '⚠️',
+  error: '🚨',
+  default: '💡'
+};
+
+const icon = iconMap[type];
+const className = `callout callout-${type}`;
+---
+
+<div class={className}>
+  <span class="callout-icon" aria-hidden="true">{icon}</span>
+  {title && <span class="callout-title">{title}</span>}
+  <div class="callout-content">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .callout {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+    border-left: 4px solid;
+  }
+
+  .callout-info {
+    background-color: var(--sl-color-blue-1);
+    border-color: var(--sl-color-blue);
+  }
+
+  .callout-warning {
+    background-color: var(--sl-color-yellow-1);
+    border-color: var(--sl-color-yellow);
+  }
+
+  .callout-error {
+    background-color: var(--sl-color-red-1);
+    border-color: var(--sl-color-red);
+  }
+
+  .callout-default {
+    background-color: var(--sl-color-gray-6);
+    border-color: var(--sl-color-gray-4);
+  }
+
+  .callout-icon {
+    flex-shrink: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .callout-title {
+    font-weight: 600;
+    color: var(--sl-color-text);
+  }
+
+  .callout-content {
+    flex: 1;
+    color: var(--sl-color-text);
+    line-height: 1.6;
+  }
+
+  .callout-content :global(p) {
+    margin: 0;
+  }
+
+  .callout-content :global(p + p) {
+    margin-top: 0.5rem;
+  }
+</style>
