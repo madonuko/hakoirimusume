@@ -1,13 +1,14 @@
 import { visit } from 'unist-util-visit';
 import macrosData from '../data/macros/macros.json';
 
-function createMacroElement(macroName, macroData) {
+function createMacroElement(macroName, macroData, id) {
   const wrapper = {
     type: 'element',
     tagName: 'span',
     properties: {
       className: 'macro-hover-wrapper',
-      'data-macro': macroName.toLowerCase()
+      'data-macro': macroName.toLowerCase(),
+      'data-popup-id': id
     },
     children: [
       {
@@ -34,7 +35,8 @@ function createMacroElement(macroName, macroData) {
         properties: {
           className: 'macro-popup',
           role: 'tooltip',
-          ariaHidden: 'true'
+          ariaHidden: 'true',
+          'data-popup-id': id
         },
         children: [
           {
@@ -122,6 +124,7 @@ export function rehypeMacroHover() {
     const parentMap = buildParentMap(tree);
     let textNodes = 0;
     let macrosFound = 0;
+    let popupId = 0;
     
     visit(tree, 'text', (node, index, parent) => {
       textNodes++;
@@ -163,7 +166,8 @@ export function rehypeMacroHover() {
             const macroData = macrosData.macros?.[macroName.toLowerCase()];
             
             if (macroData) {
-              newChildren.push(createMacroElement(macroName, macroData));
+              const id = 'macro-popup-' + (++popupId);
+              newChildren.push(createMacroElement(macroName, macroData, id));
             } else {
               newChildren.push({ type: 'text', value: match[0] });
             }

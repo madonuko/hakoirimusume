@@ -82,30 +82,27 @@ code {
   background: transparent;
 }
 
-.macro-hover-wrapper .macro-popup {
-  position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #1e1e2e;
+.macro-popup {
+  position: fixed;
+  background-color: #1e1e2e !important;
   border: 1px solid #45475a;
   border-radius: 0.5rem;
   padding: 0.75rem;
   min-width: 280px;
   max-width: 400px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
-  z-index: 1000;
+  z-index: 9999;
   text-align: left;
+  pointer-events: none;
 }
 
-.macro-hover-wrapper .macro-popup[aria-hidden="false"],
-.macro-hover-wrapper:hover .macro-popup,
-.macro-hover-wrapper:focus-within .macro-popup {
+.macro-popup[aria-hidden="false"] {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .macro-popup-header {
@@ -113,6 +110,7 @@ code {
   margin-bottom: 0.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #45475a;
+  background-color: transparent;
 }
 
 .macro-popup-title {
