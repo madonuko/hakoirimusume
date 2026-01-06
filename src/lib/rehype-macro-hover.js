@@ -181,7 +181,7 @@ export function rehypeMacroHover() {
       }
     });
 
-    // Inject popup data as a script tag at the end of the tree
+    // Inject popup data as a script tag at the beginning of the tree
     if (Object.keys(popupData).length > 0) {
       const popupScript = {
         type: 'mdxJsxFlowElement',
@@ -192,7 +192,8 @@ export function rehypeMacroHover() {
         ],
         children: [{ type: 'text', value: JSON.stringify(popupData) }]
       };
-      tree.children.push(popupScript);
+      // Insert at position 0 to be outside MDX content
+      tree.children.unshift(popupScript);
     }
 
     console.log('[rehype-macro-hover] Text nodes:', textNodes, 'Macros found:', macrosFound);
