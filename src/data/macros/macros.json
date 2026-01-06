@@ -10,7 +10,6 @@
       "tags": ["🔰"],
       "description": "Defines a macro locally.",
       "details": "Macros defined with %define will not last to another RPM section. For example, if used in preamble section, the macro will be automatically undefined in %prep. To make sure a macro lasts for the entire spec file, use %global instead.",
-      "expansion": "value",
       "examples": [
         {
           "code": "%define my_macro Hello, World!\necho %my_macro",
@@ -25,7 +24,6 @@
       "tags": ["🔰"],
       "description": "Defines a macro globally.",
       "details": "As oppose to %define, macros defined with %global will last for the entire spec file.",
-      "expansion": "value",
       "examples": [
         {
           "code": "%global cat Meow!!!\n\n%prep\necho nya %cat\n\n%build\necho %cat",
