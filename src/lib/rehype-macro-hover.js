@@ -24,13 +24,6 @@ import macrosData from '../data/macros/macros.json';
  * @returns AST element for the hover wrapper
  */
 function createMacroElement(macroName, macroData, id, originalText) {
-  // Check if we should show expansion
-  const showExpansion = macroData.expansion && 
-                        macroData.expansion !== 'value' && 
-                        macroData.expansion !== 'undefined' &&
-                        macroData.expansion !== 'nothing' &&
-                        !macroData.parameterized;
-  
   const wrapper = {
     type: 'element',
     tagName: 'span',
@@ -47,85 +40,15 @@ function createMacroElement(macroName, macroData, id, originalText) {
           className: 'macro-trigger',
           tabIndex: '0',
           role: 'button',
-          ariaLabel: 'View ' + macroData.fullName + ' documentation'
+          ariaLabel: 'View ' + originalText + ' documentation'
         },
         children: [
           { type: 'text', value: originalText }
         ]
-      },
-      {
-        type: 'element',
-        tagName: 'span',
-        properties: {
-          className: 'macro-popup',
-          role: 'tooltip',
-          ariaHidden: 'true',
-          'data-popup-id': id
-        },
-        children: [
-          {
-            type: 'element',
-            tagName: 'span',
-            properties: { className: 'popup-header' },
-            children: [
-              {
-                type: 'element',
-                tagName: 'code',
-                properties: { className: 'popup-title' },
-                children: [{ type: 'text', value: originalText }]
-              },
-              ...(macroData.tags && macroData.tags.length > 0 ? [{
-                type: 'element',
-                tagName: 'span',
-                properties: { className: 'popup-tags' },
-                children: macroData.tags.map(tag => ({
-                  type: 'element',
-                  tagName: 'span',
-                  properties: { className: 'tag' },
-                  children: [{ type: 'text', value: tag }]
-                }))
-              }] : [])
-            ]
-          },
-          {
-            type: 'element',
-            tagName: 'span',
-            properties: { className: 'popup-description' },
-            children: [{ type: 'text', value: macroData.description }]
-          },
-          ...(showExpansion ? [{
-            type: 'element',
-            tagName: 'div',
-            properties: { className: 'popup-expansion' },
-            children: [
-              {
-                type: 'element',
-                tagName: 'span',
-                properties: { className: 'expansion-label' },
-                children: [{ type: 'text', value: 'Expands to:' }]
-              },
-              {
-                type: 'element',
-                tagName: 'code',
-                properties: { className: 'expansion-code' },
-                children: [{ type: 'text', value: macroData.expansion }]
-              }
-            ]
-          }] : []),
-          {
-            type: 'element',
-            tagName: 'a',
-            properties: {
-              className: 'popup-link',
-              href: '/reference/macros/#' + macroName.toLowerCase()
-            },
-            children: [{ type: 'text', value: 'View full documentation →' }]
-          }
-        ]
       }
     ]
   };
-  
+
   return wrapper;
 }
 
@@ -150,11 +73,12 @@ function buildParentMap(node, parentMap = new Map(), currentParent = null) {
 
 /**
  * Regex pattern for matching macros:
- * - %{name:arg} - macro with colon argument
+ * - %{name:arg} - macro with colon argument (must match first, before %{name})
  * - %{name} - macro with braces, no argument
  * - %name - macro without braces
+ * Uses alternation to prevent backtracking issues
  */
-const MACRO_PATTERN = /%\{([a-zA-Z_][a-zA-Z0-9_]*)(?::([^}]*))?\}|%([a-zA-Z_][a-zA-Z0-9_]*)(?=\s|$|:)/g;
+const MACRO_PATTERN = /%\{([a-zA-Z_][a-zA-Z0-9_]*):([^}]*)\}(?!})|%\{([a-zA-Z_][a-zA-Z0-9_]*)\}(?!})|%([a-zA-Z_][a-zA-Z0-9_]*)(?=\s|$|:)/g;
 
 /**
  * Rehype plugin function
@@ -162,40 +86,49 @@ const MACRO_PATTERN = /%\{([a-zA-Z_][a-zA-Z0-9_]*)(?::([^}]*))?\}|%([a-zA-Z_][a-
  * @returns Transformer function for the AST
  */
 export function rehypeMacroHover() {
+  let popupData = {};
+  let popupId = 0;
+
   return (tree) => {
     const parentMap = buildParentMap(tree);
     let textNodes = 0;
     let macrosFound = 0;
-    let popupId = 0;
-    
+
     visit(tree, 'text', (node, index, parent) => {
       textNodes++;
       if (!parent || parent.type === 'element') {
-        // Check if inside heading by traversing parent chain
+        // Check if inside heading or macro-related element by traversing parent chain
         let currentParent = parentMap.get(node);
-        let insideHeading = false;
+        let skipProcessing = false;
         let depth = 0;
         while (currentParent && currentParent.type === 'element' && depth < 10) {
-          if (HEADING_TAGS.includes(currentParent.tagName)) {
-            insideHeading = true;
+          const className = currentParent.properties?.className;
+          if (HEADING_TAGS.includes(currentParent.tagName) ||
+              className?.includes?.('macro-hover-wrapper') ||
+              className?.includes?.('macro-popup') ||
+              className?.includes?.('popup-header') ||
+              className?.includes?.('popup-description') ||
+              className?.includes?.('popup-expansion') ||
+              className?.includes?.('popup-link')) {
+            skipProcessing = true;
             break;
           }
           currentParent = parentMap.get(currentParent);
           depth++;
         }
-        
-        if (insideHeading) {
+
+        if (skipProcessing) {
           return;
         }
-        
+
         const text = node.value;
         const matches = Array.from(text.matchAll(MACRO_PATTERN));
-        
+
         if (matches.length > 0) {
           macrosFound += matches.length;
           const newChildren = [];
           let lastEnd = 0;
-          
+
           for (const match of matches) {
             if (match.index > lastEnd) {
               newChildren.push({
@@ -203,34 +136,65 @@ export function rehypeMacroHover() {
                 value: text.slice(lastEnd, match.index)
               });
             }
-            
-            // match[1] = name from %{name:param}
-            // match[3] = name from %name
-            const macroName = match[1] || match[3];
+
+            // match[1] = name from %{name:arg}
+            // match[3] = name from %{name}
+            // match[4] = name from %name
+            const macroName = match[1] || match[3] || match[4];
             const macroData = macrosData.macros?.[macroName.toLowerCase()];
-            
+            const originalText = match[0];
+
             if (macroData) {
               const id = 'macro-popup-' + (++popupId);
-              newChildren.push(createMacroElement(macroName, macroData, id, match[0]));
+              newChildren.push(createMacroElement(macroName, macroData, id, originalText));
+              
+              // Store popup data for later injection
+              const showExpansion = macroData.expansion &&
+                macroData.expansion !== 'value' &&
+                macroData.expansion !== 'undefined' &&
+                macroData.expansion !== 'nothing' &&
+                !macroData.parameterized;
+              
+              popupData[id] = {
+                name: originalText,
+                description: macroData.description,
+                expansion: showExpansion ? macroData.expansion : null,
+                link: '/reference/macros/#' + macroName.toLowerCase(),
+                tags: macroData.tags || []
+              };
             } else {
-              newChildren.push({ type: 'text', value: match[0] });
+              newChildren.push({ type: 'text', value: originalText });
             }
-            
+
             lastEnd = match.index + match[0].length;
           }
-          
+
           if (lastEnd < text.length) {
             newChildren.push({
               type: 'text',
               value: text.slice(lastEnd)
             });
           }
-          
+
           parent.children.splice(index, 1, ...newChildren);
         }
       }
     });
-    
+
+    // Inject popup data as a script tag at the end of the tree
+    if (Object.keys(popupData).length > 0) {
+      const popupScript = {
+        type: 'mdxJsxFlowElement',
+        name: 'script',
+        attributes: [
+          { type: 'mdxJsxAttribute', name: 'id', value: 'macro-popup-data' },
+          { type: 'mdxJsxAttribute', name: 'type', value: 'application/json' }
+        ],
+        children: [{ type: 'text', value: JSON.stringify(popupData) }]
+      };
+      tree.children.push(popupScript);
+    }
+
     console.log('[rehype-macro-hover] Text nodes:', textNodes, 'Macros found:', macrosFound);
   };
 }
